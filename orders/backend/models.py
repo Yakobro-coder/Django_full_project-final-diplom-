@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser
 # Функция перевода текса
 from django.utils.translation import gettext_lazy as _
 
@@ -23,7 +24,8 @@ STATE_CHOICES = (
 )
 
 
-class UserManager(BaseUserManager):
+class UsersManager(BaseUserManager):
+    use_in_migrations = True
 
     def _create_user(self, email, password, **extra_fields):
 
@@ -32,7 +34,7 @@ class UserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
-        user.save()
+        user.save(using=self._db)
         return user
 
     def create_user(self, email, password=None, **extra_fields):
@@ -52,8 +54,8 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class Users(AbstractBaseUser):
-    email = models.EmailField(max_length=255, verbose_name='Электронный адрес', unique=True)
+class Users(AbstractUser):
+    email = models.EmailField(_('email address'), unique=True)
 
     type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='buyer', verbose_name='Тип пользователя')
     last_name = models.CharField(max_length=50, verbose_name='Фамилия')
@@ -61,18 +63,19 @@ class Users(AbstractBaseUser):
     patronymic = models.CharField(max_length=50, blank=True, verbose_name='Отчество')
     company = models.CharField(max_length=50, blank=True, verbose_name='Компания')
     position = models.CharField(max_length=50, blank=True, verbose_name='Должность')
+    username_validator = UnicodeUsernameValidator()
+    username = models.CharField(_('username'), max_length=150, null=True,
+                                help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
+                                validators=[username_validator],
+                                error_messages={'unique': _("A user with that username already exists.")}
+                                )
 
-    is_active = models.BooleanField(_('active'),
-                                    default=True,
-                                    help_text=_(
-                                        'Designates whether this user should be treated as active. '
-                                        'Unselect this instead of deleting accounts.'))
-
-    is_admin = models.BooleanField(default=False)
-
-    objects = BaseUserManager()
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['username']
+    objects = UsersManager()
+
+    def __str__(self):
+        return f'{self.username} {self.first_name} {self.last_name}'
 
     class Meta:
         db_table = 'users'
@@ -150,6 +153,7 @@ class ProductsInfo(models.Model):
     class Meta:
         db_table = 'products_info'
         verbose_name = 'Информация о продукте'
+        verbose_name_plural = 'Информация о продуктах'
         constraints = [
             models.UniqueConstraint(fields=['product_id', 'shop_id', 'external_id'], name='unique_product_info'),
         ]
