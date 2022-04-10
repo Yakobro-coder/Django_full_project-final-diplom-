@@ -33,9 +33,9 @@
     <div>
       <h3 class="float-md-start mb-0">YakoBro</h3>
       <nav class="nav nav-masthead justify-content-center float-md-end">
-        <a class="nav-link{% if request.path == '/'%} active{% endif %}" aria-current="page" href="{% url 'home' %}">Главная</a>
-        <a class="nav-link{% if request.path == '/log_in'%} active{% endif %}" href="{% url 'log_in' %}">Войти</a>
-        <a class="nav-link{% if request.path == '/sign_up'%} active{% endif %}" href="{% url 'sign_up' %}">Регистрация</a>
+        <a class="nav-link{% if request.path == '/home/'%} active{% endif %}" aria-current="page" href="{% url 'home' %}">Главная</a>
+        <a class="nav-link{% if request.path == '/home/log_in'%} active{% endif %}" href="{% url 'log_in' %}">Войти</a>
+        <a class="nav-link{% if request.path == '/home/sign_up'%} active{% endif %}" href="{% url 'sign_up' %}">Регистрация</a>
       </nav>
     </div>
   </header>
