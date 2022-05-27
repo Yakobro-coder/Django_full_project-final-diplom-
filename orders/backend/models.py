@@ -64,18 +64,22 @@ class Users(AbstractUser):
     company = models.CharField(max_length=50, blank=True, verbose_name='Компания')
     position = models.CharField(max_length=50, blank=True, verbose_name='Должность')
     username_validator = UnicodeUsernameValidator()
-    username = models.CharField(_('username'), max_length=150, null=True,
+    username = models.CharField(_('nickname'), max_length=150, null=True, blank=True,
                                 help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
                                 validators=[username_validator],
                                 error_messages={'unique': _("A user with that username already exists.")}
                                 )
+
+    is_active = models.BooleanField(_('active'), default=False,
+                                    help_text=_('Designates whether this user should be treated as active. '
+                                                'Unselect this instead of deleting accounts.'),)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
     objects = UsersManager()
 
     def __str__(self):
-        return f'{self.username} {self.first_name} {self.last_name}'
+        return f'{self.first_name} {self.last_name}'
 
     class Meta:
         db_table = 'users'
@@ -101,12 +105,12 @@ class Contacts(models.Model):
 
 
 class Shops(models.Model):
-    user = models.OneToOneField(Users,
-                                verbose_name='Пользователь',
-                                on_delete=models.CASCADE)
+    user_id = models.OneToOneField(Users,
+                                   verbose_name='Пользователь', blank=True, null=True,
+                                   on_delete=models.CASCADE)
 
     name = models.CharField(max_length=50, verbose_name='Название магазина')
-    url_shop = models.CharField(max_length=50, blank=True)
+    url_shop = models.URLField(verbose_name='Ссылка', max_length=50, blank=True)
     status_work = models.BooleanField(default=True, verbose_name='Статус приёма заказов')
 
     class Meta:
@@ -118,7 +122,7 @@ class Shops(models.Model):
 
 class Categories(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name='Категория')
-    shop = models.ManyToManyField(Shops, related_name='categories', verbose_name='Магазины')
+    shops = models.ManyToManyField(Shops, related_name='categories', verbose_name='Магазины')
 
     class Meta:
         db_table = 'categories'
@@ -204,7 +208,7 @@ class Orders(models.Model):
 
 
 class OrderItems(models.Model):
-    order_id = models.ForeignKey(Orders, verbose_name='Заказ', related_name='order_items', on_delete=models.CASCADE)
+    order_id = models.ForeignKey(Orders, verbose_name='Заказ', related_name='ordered_items', on_delete=models.CASCADE)
     product_info_id = models.ForeignKey(ProductsInfo, verbose_name='Информация о продукте',
                                         related_name='ordered_items', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество')
@@ -230,7 +234,7 @@ class ConfirmEmailToken(models.Model):
         Users,
         related_name='confirm_email_tokens',
         on_delete=models.CASCADE,
-        verbose_name=_("The User which is associated to this password reset token")
+        verbose_name=_("Пользователь, который связан с этим токеном сброса пароля")
     )
 
     created_at = models.DateTimeField(
@@ -251,4 +255,4 @@ class ConfirmEmailToken(models.Model):
         return super(ConfirmEmailToken, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "Password reset token for user {user}".format(user=self.user)
+        return "Токен сброса пароля для пользователя {user}".format(user=self.user)

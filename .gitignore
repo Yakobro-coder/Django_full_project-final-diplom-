@@ -1,3 +1,6 @@
+# Local settings #
+local_settings.py
+
 ### Python ###
 .idea/
 # Byte-compiled / optimized / DLL files

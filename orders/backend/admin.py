@@ -2,7 +2,13 @@ from django.contrib import admin
 from .models import Users, Contacts, Shops, Categories, Products, ProductsInfo, Parameters, \
     ProductParameter, Orders, OrderItems, ConfirmEmailToken
 
-admin.site.register(Users)
+
+class UsersAdmin(admin.ModelAdmin):
+    list_display = ('email', 'first_name', 'last_name', 'username', 'type', 'is_active', 'is_staff',)
+
+
+admin.site.register(Users, UsersAdmin)
+
 admin.site.register(Contacts)
 admin.site.register(Shops)
 admin.site.register(Categories)
