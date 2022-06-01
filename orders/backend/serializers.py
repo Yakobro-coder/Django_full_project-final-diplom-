@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Users, Contacts, ConfirmEmailToken, Categories, Shops, OrderItems, Products, ProductsInfo, \
-    ProductParameter, Orders
+    ProductParameter, Orders, Parameters
 from django.utils.translation import gettext_lazy as _
 
 
@@ -55,15 +55,22 @@ class ShopsSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category_id = serializers.StringRelatedField()
+    category_id = CategoriesSerializer()
 
     class Meta:
         model = Products
         fields = ('name', 'category_id',)
 
 
+class ParameterSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Parameters
+        fields = ('id', 'name',)
+
+
 class ProductParameterSerializer(serializers.ModelSerializer):
-    parameter_id = serializers.StringRelatedField()
+    parameter_id = ParameterSerializer(read_only=True)
 
     class Meta:
         model = ProductParameter
@@ -76,7 +83,7 @@ class ProductInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductsInfo
-        fields = ('id', 'shop_id', 'product_id', 'quantity', 'price', 'price_rrc', 'product_id_parameters',)
+        fields = ('id', 'shop_id', 'product_id', 'quantity', 'price', 'price_rrc', 'product_parameters',)
         read_only_fields = ('id',)
 
 
@@ -102,6 +109,6 @@ class OrdersSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Orders
-        fields = ('id', 'ordered_items', 'status', 'date', 'total_sum', 'contact',)
+        fields = ('order_id', 'ordered_items', 'status', 'date', 'total_sum', 'contact',)
         read_only_fields = ('id',)
 

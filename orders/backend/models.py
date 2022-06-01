@@ -234,7 +234,7 @@ class ConfirmEmailToken(models.Model):
         Users,
         related_name='confirm_email_tokens',
         on_delete=models.CASCADE,
-        verbose_name=_("Пользователь, который связан с этим токеном сброса пароля")
+        verbose_name=_("Пользователь, который связан с этим токеном подтверждения почты")
     )
 
     created_at = models.DateTimeField(
@@ -255,4 +255,4 @@ class ConfirmEmailToken(models.Model):
         return super(ConfirmEmailToken, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "Токен сброса пароля для пользователя {user}".format(user=self.user)
+        return "Токен подтверждения почты для пользователя {user}".format(user=self.user)
