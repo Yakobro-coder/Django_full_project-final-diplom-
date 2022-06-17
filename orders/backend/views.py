@@ -26,6 +26,10 @@ from .send_email import new_user_registered, new_order
 from .serializers import UsersSerializer, LoginSerializer, LoginTokenResponseSerializer, CategoriesSerializer, \
     ShopsSerializer, OrdersSerializer, ContactsSerializer, ProductInfoSerializer, OrderItemSerializer
 
+import sys
+# sys.path.insert(1, 'E:\\YakoBro\\Proekt_Python\\Django_full_project(final-diplom)\\orders')
+# from celery_sender import new_user_registered
+
 
 def home(request):
     return render(request, 'backend/home.html')
@@ -61,7 +65,9 @@ class RegisterUsers(APIView):
                     user.save()
 
                     # send signal mail
-                    new_user_registered.send(sender=self.__class__, user_id=user.id)
+                    # new_user_registered.send(sender=self.__class__, user_id=user.id)
+                    new_user_registered.delay(user_id=user.id)
+                    # new_user_registered(user_id=user.id)
 
                     return JsonResponse({'Status': True, 'MSG': 'Пользователь создан'})
                 else:

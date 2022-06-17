@@ -30,10 +30,17 @@ ALLOWED_HOSTS = ['*']
 
 EMAIL_HOST = 'smtp.mail.ru'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = 'IMPORT FROM FILE local_settings'
+EMAIL_HOST_USER = 'yakobro@mail.ru'
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = 'IMPORT FROM FILE local_settings'
 EMAIL_USE_SSL = True
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Moscow'
 
 # Application definition
 
@@ -159,7 +166,7 @@ REST_FRAMEWORK = {
 
 try:
     if DEBUG:
-        from local_settings import *
+        from local_settings import EMAIL_HOST_PASSWORD, SECRET_KEY
         print('Importing Django settings from a file!')
 except ImportError:
     pass
